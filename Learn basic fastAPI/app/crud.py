@@ -28,11 +28,11 @@ def delete_post(db:Session, id:int):
 
 def update_post(db:Session, id:int, post: schemas.PostBase):
     update_post = get_post(db, id)
-    if not post:
+    if not update_post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id {id} not found")
     for key, value in post.dict().items():
         setattr(update_post, key, value)
     db.commit()
-    db.refresh(post)
-    return post
+    db.refresh(update_post)
+    return update_post
 
