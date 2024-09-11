@@ -1,5 +1,6 @@
 # Fast API
 
+
 ## 1. API schema (pydantic):
 
 - dùng để validate input đầu vào của API chính xác như expect (thừa, thiếu params hay sai kiểu dữ liệu -> báo lỗi)
@@ -22,7 +23,7 @@ class User(UserBase): # lưu thêm các dữ liệu trả về -> khi ĐỌC t�
 		orm_mode = True # giúp pydantic đọc được dữ liệu record trả về từ ORM(nếu k set nó chỉ đọc hiểu dữ liệu là dict)
 ```
 
-## 2. Thứ tự xuất hiện API
+## 2. Thứ tự xuất hiện API quan trọng
 
 - Thứ tự xuất hiện API trong file là rất quan trọng -> nếu cả 2 API cùng match -> ưu tiên gọi API match đầu tiên
   ```
@@ -65,3 +66,35 @@ name: str
 
 - **Pydantic** để verify input, output format từ API -> gọi là **schemas**
 - **ORM** để định nghĩa các table và kiểu dữ liệu, thao tác với DB -> gọi là models
+
+## 6.Tổ chức folder
+
+Tạo routers
+
+```
+# Tạo thư mục routers
+# Tạo file .py cho từng API theo mục đích sử dụng 
+# VD: 
+# - posts.py
+# - user.py
+# Dùng APIRouter -> để create route, với 2 tham số 
+# prefix -> tất cả các url trong file được thêm prefix 
+# tag -> Nhóm các API với cùng mục đích sử dụng ở doc API  
+# import route vào file main.py (file chạy uvicorn) bằng app.include_router(post.router)
+# chi tiết tham khảo /Learn basic FastAPI/routers/post.py
+```
+
+## 7. Cách đọc tham số truyền vào func FastAPI
+
+* Nếu tham số declared ở URL (**path)** -> sử dụng param được truyền vào từ url
+* Nếu tham số truyền vào kiểu  `int`, `float`, `str`, `bool`, etc -> hiểu là **query** parameter.
+* Nếu tham số tryền vào kiểu **Pydantic model** -> hiểu là request  **body** .
+
+Tham số:
+
+```
+q: str  -> require
+q: str = None -> hiểu là option, giá trị mặc định là None
+q: str | None = None -> hiểu là option, giá trị mặc định là None
+Chỉ dùng str = None -> fastapi cũng hiểu là option, nhưng cho thêm | None -> giúp cho IDE gợi ý và cảnh báo tốt hơn
+```

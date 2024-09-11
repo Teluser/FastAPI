@@ -20,11 +20,12 @@ def create_post(db:Session, post:schemas.PostCreate):
 
 
 def delete_post(db:Session, id:int):
+    
     post = db.query(models.Post).filter(models.Post.id == id).first()
+    delete_post_id = post.id
     db.delete(post)
     db.commit()
-    db.refresh(post)
-    return True
+    return delete_post_id
 
 def update_post(db:Session, id:int, post: schemas.PostBase):
     update_post = get_post(db, id)
@@ -36,3 +37,16 @@ def update_post(db:Session, id:int, post: schemas.PostBase):
     db.refresh(update_post)
     return update_post
 
+def get_users(db:Session):
+    return db.query(models.User).all()
+
+def get_user_by_email(db:Session, email:int):
+    return db.query(models.User).filter(models.User.email == email).first()
+
+def create_user(db:Session, create_user:schemas.UserCreate):
+    create_user.password = hash(create_user.password)
+    new_user = models.User(**create_user.dict())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user

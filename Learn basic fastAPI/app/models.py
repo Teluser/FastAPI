@@ -12,3 +12,10 @@ class Post(Base):
     published = Column(Boolean, default=True)
     rating = Column(Integer, default=0)
     created_at = Column(TIMESTAMP,  default=datetime.datetime.utcnow)
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, nullable=False)
+    email = Column(String, nullable=False, unique=True)
+    password = Column(String, nullable=False)
+    created_at = Column(TIMESTAMP,  default=datetime.datetime.utcnow)
