@@ -1,5 +1,34 @@
 # Fast API
 
+## Concurrent vs Parralel
+
+- Concurrent vs parralel là khác nhau
+- **Concurrent**:
+
+  - **chuyên dùng cho các TH phải đợi phản hồi, đọc từ  file,.. .**
+  - Trong lúc làm task 1 phải chờ bên kia trả lời -> dừng, làm việc khác (task 2) -> khi nhận được câu trả task 1, finish task 2 -> quay lại để xử lí tiếp phần làm dở ở task 1
+  - -> dùng từ khóa async def, await:
+  - -> bản chất hàm được khai báo **async def** -> **trả về corountine** -> để **run func** đó và **lấy kết quả** -> phải dùng **await**
+  - ***Func*** gọi đến func **async** (hay dùng đến từ khóa **await**) ->  phải định nghĩa **async def**
+  - Hàm **async def cha ngoài cùng**  -> sẽ được **chạy bằng cách đặc biệt, k****dùng từ khóa await**
+  - **Nếu tác vụ là CPU bound** -> **dùng async await cũng vô ích** (như là k dùng) -> do làm việc liên tục, k có thời gian nghỉ để nhảy sang làm việc khác
+- **Parralel**:
+
+  - chuyên dùng cho các tác vụ CPU bound (làm việc với cường độ cao, liên tục k nghỉ)
+  - xử lý nhiều việc cùng lúc (đa luồng), mỗi luồng chạy 1 tiến trình
+
+## Enviroment
+
+- Tạo môi trường trong python -> khi active env nó sẽ thực hiện thay đổi 1 số thứ, nhưng quan trọng nhất là thay đổi `PATH` (thư mục chứa chương trình để chạy lệnh)
+
+  ```
+  # Trước khi active env
+  PATH = /usr/bin:/bin:/usr/sbin:/sbin
+  # Sau khi active env
+  PATH = /home/user/code/awesome-project/.venv/bin:/usr/bin:/bin:/usr/sbin:/sbin
+  # Tìm chương trình chạy ở folder 1 -> k thấy thì tìm ở folder 2 
+  # when type python in the terminal, the system will find the Python program in /home/user/code/awesome-project/.venv/bin -> use that one
+  ```
 
 ## 1. API schema (pydantic):
 
