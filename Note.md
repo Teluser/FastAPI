@@ -122,7 +122,7 @@ Tạo routers
 Tham số:
 
 ```
-q: str  -> require
+q: str  -> require, biến kiểu str -> fastapi tự động ép kiểu, nếu k ép kiểu được sẽ báo lỗi trong response trả về cho user 
 q: str = None -> hiểu là option, giá trị mặc định là None
 q: str | None = None -> hiểu là option, giá trị mặc định là None
 Chỉ dùng str = None -> fastapi cũng hiểu là option, nhưng cho thêm | None -> giúp cho IDE gợi ý và cảnh báo tốt hơn
