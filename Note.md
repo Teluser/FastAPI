@@ -127,3 +127,26 @@ q: str = None -> hiểu là option, giá trị mặc định là None
 q: str | None = None -> hiểu là option, giá trị mặc định là None
 Chỉ dùng str = None -> fastapi cũng hiểu là option, nhưng cho thêm | None -> giúp cho IDE gợi ý và cảnh báo tốt hơn
 ```
+
+## 8. JWT
+
+- Jwt gồm 3 phần: `hash(header).hash(body).signature`
+
+  - Header -> ai cũng đọc được
+  - Body:
+    - ai cũng đọc được -> k lưu thông tin bí mật vào token. Chỉ lưu user_id, role,....
+    - token được gắn vào mỗi request -> token cần nhỏ -> Body cần nhỏ để k làm tăng size packet -> gây chậm trễ
+  - Signature:
+    - Signature = encrypt(**header**.**body** => mã hóa dùng key **secret**). **Secret chỉ được lưu ở DB server API, user/browser đều k biết**
+    - Để đảm bảo header + body k bị sửa đổi. Nếu người khác có token=> K sửa body để fake thành id user khác được
+    - **Nếu sửa header + body**:
+      - **Cần tính lại giá trị signature** khác => Tạo token mới => **Khi đó token mới hợp lệ**. Nhưng user k có key secret => k thể tạo signature hợp lệ
+      - Giữ nguyên signature -> token k hợp lệ
+- Authentication = JWT token:
+
+  - User login -> server trả về token
+  - User mỗi khi gửi request thì gửi kèm token ở header.
+  - Server check xem token có hợp lệ không bằng cách:
+    - Lấy header, body từ token + lấy **secret lưu trong DB**
+    - Tính signature hợp lệ = encrypt(header.body => mã hóa dùng key secret)
+    - So sánh signature vừa tính với signature trong token => Trùng => Token valid
