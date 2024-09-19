@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from database import get_db
 from sqlalchemy.orm import Session
-import crud, schemas, utils
+import crud, schemas, utils, oauth2
 from constants import DEFAULT_ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter(
@@ -26,12 +26,12 @@ async def get_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depen
     user = crud.authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=DEFAULT_ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = utils.create_access_token(
+    access_token = oauth2.create_access_token(
         data={"user": user.id}, expires_delta=access_token_expires
     )
     return schemas.Token(access_token=access_token, token_type="bearer")
@@ -45,8 +45,7 @@ def get_current_user(token: schemas.Token, db: Session = Depends(get_db)) :
         headers={"WWW-Authenticate": "Bearer"},
     )
     
-    payload = utils.decode_access_token(token.access_token)
-    user_id = payload.get("user")
+    user_id = oauth2.get_current_user(token.access_token)
     user = crud.get_user_by_id(db, id=user_id)
     if user is None:
         raise credentials_exception
