@@ -1,5 +1,5 @@
 from database import Base
-from sqlalchemy import Boolean, Column, Integer, String, TIMESTAMP # type: ignore
+from sqlalchemy import Boolean, Column, Integer, String, TIMESTAMP, ForeignKey # type: ignore
 import datetime 
 
 
@@ -12,6 +12,7 @@ class Post(Base):
     published = Column(Boolean, default=True)
     rating = Column(Integer, default=0)
     created_at = Column(TIMESTAMP,  default=datetime.datetime.utcnow)
+    owner_id = Column(Integer, ForeignKey("users.id", on_delete="CASCADE"), nullable=False)
 
 class User(Base):
     __tablename__ = "users"

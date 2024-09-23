@@ -14,6 +14,7 @@ class PostCreate(PostBase):
 class Post(PostBase):
     id: int
     created_at: datetime
+    owner_id: int # because create post need authentication, owner_id get from token, so not need to be in PostBase
 
     class Config:
         orm_mode = True
