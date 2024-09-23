@@ -79,6 +79,29 @@ def get_post(id: int, response: Response):
 ## 4. ORM
 
 * dùng thư viện SQLalchemy
+* Nếu bảng khai báo chưa có trong DB => Thực hiện thêm bảng
+* Nếu sửa bảng đã có => sqlachemy k làm gì cả, để thay đổi bảng đã có, phải dùng migration tool là alembic
+* ```
+  # Setting alembic 
+
+  # initialize alembic
+  alembic init alembic
+
+  # seting alembic
+  # connect alembic with ORM
+  git from models import Base
+  target_metadata = Base.metadata
+
+  # connect alembic with database 
+  from constants import SQLALCHEMY_DATABASE_URL
+  config.set_main_option('sqlalchemy.url', SQLALCHEMY_DATABASE_URL)
+
+  # create file migration
+  alembic revision --autogenerate -m "<migation_name>"
+
+  # migrate newest file migration in DB
+  alembic revision --autogenerate -m "Initial migration"
+  ```
 
 ## 5.Sự khác nhau giữa pydantic và orm
 
