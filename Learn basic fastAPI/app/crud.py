@@ -9,8 +9,8 @@ def get_post(db:Session, id:int):
     return db.query(models.Post).filter(models.Post.id == id).first()
 
 
-def create_post(db:Session, post:schemas.PostCreate):
-    post = models.Post(**post.dict())
+def create_post(db:Session, post:schemas.PostCreate, user_id:int):
+    post = models.Post(**post.dict(), owner_id=user_id)
     db.add(post)
     db.commit()
     db.refresh(post)
@@ -25,10 +25,14 @@ def delete_post(db:Session, id:int):
     db.commit()
     return delete_post_id
 
-def update_post(db:Session, id:int, post: schemas.PostBase):
+def update_post(db:Session, id:int, post: schemas.PostBase, user_id:int):
     update_post = get_post(db, id)
     if not update_post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id {id} not found")
+    
+    if update_post.owner_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Not authorized to update post with id {id}")
+    
     for key, value in post.dict().items():
         setattr(update_post, key, value)
     db.commit()

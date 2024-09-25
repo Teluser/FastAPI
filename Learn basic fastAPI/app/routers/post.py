@@ -14,7 +14,7 @@ def get_posts(db:Session = Depends(get_db), user_id: str = Depends(oauth2.get_cu
 
 @router.post("/",status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
 def create_post(new_post: schemas.PostCreate, db:Session = Depends(get_db), user_id: str = Depends(oauth2.get_current_user)): 
-    return crud.create_post(db, new_post)
+    return crud.create_post(db, new_post, user_id)
 
 @router.get("/{id}", response_model=schemas.Post)
 def get_post(id: int, response: Response, db:Session = Depends(get_db), user_id: str = Depends(oauth2.get_current_user)): 
@@ -28,9 +28,13 @@ def delete_post(id: int, db:Session = Depends(get_db), user_id: str = Depends(oa
     post = crud.get_post(db, id)
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id {id} not found")
+    
+    if post.owner_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Not authorized to delete post with id {id}")
+    
     deleted_post_id = crud.delete_post(db, id)
     return {"message": f"Successfully deleted, deleted_post_id = {deleted_post_id}"}
        
 @router.put("/{id}",status_code=status.HTTP_200_OK, response_model=schemas.Post)
 def update_post(id: int, update_post: schemas.PostBase, db:Session = Depends(get_db), user_id: str = Depends(oauth2.get_current_user)):
-    return crud.update_post(db, id, update_post)
+    return crud.update_post(db, id, update_post, user_id)
