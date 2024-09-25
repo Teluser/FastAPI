@@ -1,7 +1,7 @@
 # * Setup
 
 ```
-# Move to folder /Learn basic fastAPI (as working directory),
+# Move to folder /Learn basic fastAPI/app (as working directory),
 # it important to run python command in this folder 
 # because we use import in code base on condition that this folder is root dir
 
