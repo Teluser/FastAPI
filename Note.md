@@ -173,3 +173,35 @@ Chỉ dùng str = None -> fastapi cũng hiểu là option, nhưng cho thêm | No
     - Lấy header, body từ token + lấy **secret lưu trong DB**
     - Tính signature hợp lệ = encrypt(header.body => mã hóa dùng key secret)
     - So sánh signature vừa tính với signature trong token => Trùng => Token valid
+
+## Environments variables
+
+- Lưu ở file .env
+- Có thể validate các biến môi trường dùng pydantic model, tạo file config.py
+
+  ```
+  from pydantic import BaseSettings
+
+
+  class Settings(BaseSettings):
+      database_hostname: str #validate phải là string, trong .env match với biến database_hostname(k phân biệt chữ hoa hay thường)  
+      database_port: str
+      database_password: str
+      database_name: str
+      database_username: str
+      secret_key: str
+      algorithm: str
+      access_token_expire_minutes: int
+
+      class Config:
+          env_file = ".env" # đọc biến môi trường từ file .env
+
+
+  settings = Settings()
+  ```
+- Ở file khác muốn dùng biến trong setting
+
+  ```
+  from .config import settings
+  settings.database_hostname
+  ```
