@@ -1,6 +1,7 @@
 from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, EmailStr # type: ignore
+from pydantic.types import conint
 
 class PostBase(BaseModel):
     title: str 
@@ -19,8 +20,11 @@ class Post(PostBase):
     class Config:
         orm_mode = True
 
-
-
+class PostVote(BaseModel):
+    Post: Post # post need to be uppercase first letter, if not it will raise error
+    votes: int
+    class Config:
+        orm_mode = True
 
 class UserBase(BaseModel):
     email: EmailStr 
@@ -41,3 +45,11 @@ class User(UserBase):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class VoteBase(BaseModel):
+    post_id: int
+    dir: conint(le=1)
+
+class VoteCreate(VoteBase):
+    pass

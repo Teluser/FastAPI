@@ -8,7 +8,7 @@ router = APIRouter(
     prefix="/posts", # prefix of the url
     tags=["Posts"] # show API docs group with this tag
 )
-@router.get("/", response_model=list[schemas.Post])
+@router.get("/", response_model=list[schemas.PostVote])
 def get_posts(db:Session = Depends(get_db), user_id: str = Depends(oauth2.get_current_user)):
     return crud.get_posts(db)
 

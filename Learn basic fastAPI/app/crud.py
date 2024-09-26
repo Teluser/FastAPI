@@ -1,9 +1,12 @@
 from sqlalchemy.orm import Session # type: ignore
+from sqlalchemy import func
 from fastapi import status, HTTPException # type: ignore
 import models, schemas, utils
 
 def get_posts(db:Session, skip:int=0, limit:int=100):
-    return db.query(models.Post).offset(skip).limit(limit).all()
+    posts = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(
+        models.Vote, models.Post.id == models.Vote.post_id, isouter=True).group_by(models.Post.id).offset(skip).limit(limit).all()
+    return posts
 
 def get_post(db:Session, id:int):
     return db.query(models.Post).filter(models.Post.id == id).first()
