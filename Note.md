@@ -79,7 +79,7 @@ def get_post(id: int, response: Response):
 ## 4. ORM
 
 * dùng thư viện SQLalchemy
-* Nếu bảng khai báo chưa có trong DB => Thực hiện thêm bảng
+* Nếu bảng khai báo chưa có trong DB => sqlachemy thực hiện thêm bảng
 * Nếu sửa bảng đã có => sqlachemy k làm gì cả, để thay đổi bảng đã có, phải dùng migration tool là alembic
 * ```
   # Setting alembic 
