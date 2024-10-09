@@ -16,8 +16,8 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # configuring Alembic to work with your SQLAlchemy models
-from models import Base # root dir run command py is /Learn basic fastAPI
-target_metadata = Base.metadata
+from models import Base # root dir run command py is /Learn basic fastAPI/app
+target_metadata = Base.metadata # User Base class is Base in models.py not Base in database.py
 
 # connect alembic with database
 from constants import SQLALCHEMY_DATABASE_URL

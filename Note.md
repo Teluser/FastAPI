@@ -82,7 +82,7 @@ def get_post(id: int, response: Response):
 * Nếu bảng khai báo chưa có trong DB => sqlachemy thực hiện thêm bảng
 * Nếu sửa bảng đã có => sqlachemy k làm gì cả, để thay đổi bảng đã có, phải dùng migration tool là alembic
 * ```
-  # Setting alembic 
+   # Setting alembic 
 
   # initialize alembic
   alembic init alembic
@@ -96,11 +96,26 @@ def get_post(id: int, response: Response):
   from constants import SQLALCHEMY_DATABASE_URL
   config.set_main_option('sqlalchemy.url', SQLALCHEMY_DATABASE_URL)
 
-  # create file migration
+  # tạo file migration thủ công , với cách này phải modify hàm upgrade, downgrade trong file revision sau khi run lệnh
+  alembic revision -m "<migation_name>"
+
+  # hoặc
+  # create file migration tự động bằng alembic, run xong tạo ra file trong folder alembic/versions/<số revision><name_revision>
   alembic revision --autogenerate -m "<migation_name>"
 
-  # migrate newest file migration in DB
-  alembic revision --autogenerate -m "Initial migration"
+
+  # run migrate, có trong bảng alembic_versions trong DB
+  alembic upgrade <số revision>
+  alembic upgrade head # migrate đến file revision mới nhất
+  alembic upgrade +1 # migrate đến 1 revision phía trước
+
+  # roleback migration
+  alembic downgrade <số revision>
+  alembic downgrade -1 # back lại 1 version trước đó 
+
+  # check đã migrate DB đến file revision nào 
+  alembic current
+
   ```
 
 ## 5.Sự khác nhau giữa pydantic và orm
@@ -170,9 +185,29 @@ Chỉ dùng str = None -> fastapi cũng hiểu là option, nhưng cho thêm | No
   - User login -> server trả về token
   - User mỗi khi gửi request thì gửi kèm token ở header.
   - Server check xem token có hợp lệ không bằng cách:
-    - Lấy header, body từ token + lấy **secret lưu trong DB**
-    - Tính signature hợp lệ = encrypt(header.body => mã hóa dùng key secret)
-    - So sánh signature vừa tính với signature trong token => Trùng => Token valid
+  - Lấy header, body từ token + lấy **secret lưu trong DB**
+  - Tính signature hợp lệ = encrypt(header.body => mã hóa dùng key secret)
+  - So sánh signature vừa tính với signature trong token => Trùng => Token valid
+
+
+## 9. Dockerize
+
+- Docker build image theo layer, mỗi câu lệnh là 1 layer, nếu thay đổi ở step nào => Docker sẽ giữ nguyên các layer trước, và build layer mới đè lên từ chỗ thay đổi
+- File docker bên dưới: Dùng copy requirement.txt thay vì COPY . . ngay từ đầu vì lí do hiệu suất:
+  - Khi thay đổi code, k thay đổi requirements.txt => chỉ build lại từ layer chạy câu lệnh `COPY ..` => build nhanh hơn do không phải cài đặt lại requirements
+  - Chỉ khi thay đổi requirements.txt => mới build lại ở layer chạy câu lệnh `COPY requirements.txt` rồi install requirements
+
+
+```yaml
+FROM python:3.9.7
+WORKDIR /usr/src/app
+COPY requirements.txt ./ 
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
 
 ## Environments variables
 
@@ -204,4 +239,22 @@ Chỉ dùng str = None -> fastapi cũng hiểu là option, nhưng cho thêm | No
   ```
   from .config import settings
   settings.database_hostname
+  ```
+  # Test with Pytest
+
+
+  ```python
+  # pytest will run all file: test_*.py or *_test.py in the current directory and its subdirectories.
+  # truyền nhiều bộ tham số và kết quả vào test cùng lúc
+  @pytest.mark.parametrize 
+
+  # Chạy 1 step nào đó trước khi bắt đầu test. VD: Initilize DB, tạo giá trị trong DB, login user 
+  @pytest.fixture() 
+
+  # Khi viết test => các bài test k được phụ thuộc vào nhau. VD: test tạo user, rồi lấy user vừa tạo test login, thay vào đó nên dùng fixture khởi tạo user riêng để test phần login
+
+  # conftest.py: sharing fixtures across multiple files trong cùng 1 directory, k cần chỉ rõ dùng import. Các file ngoài dir thì k hiểu, cần import tường minh => các fixture dùng chung cho 1 dir để vào file này
+
+  # FastAPI có tính năng overide dependency, có thể cho dependency trỏ vào DB chuyên dùng để test sử dụng tính năng này
+  app.dependency_overrides[common_parameters] = override_dependency
   ```

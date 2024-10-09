@@ -13,10 +13,6 @@ source /venv/bin/active
 # Run app by command
 uvicorn main:app --reload
 
-# create file migration
+# create file migration automaticaly by
 alembic revision --autogenerate -m "<migation_name>"
-# migrate newest file migration in DB
-alembic revision --autogenerate -m "Initial migration"
-
-
 ```
